@@ -14,6 +14,14 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :secret => 'what_is_going_on' 
 
 get '/' do
+  if session[:player_name]
+    redirect '/game'
+  else
+    redirect '/set_name'
+  end
+end
+  
+get '/set_name' do
   erb :set_name
 end
 
@@ -23,8 +31,14 @@ post '/set_name' do
 end
 
 get '/game' do
-  session[:deck] = [['2', 'D'], ['3', 'D']]
+  suits = ['Clubs', 'Hearts', 'Diamonds', 'Spades']
+  cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
+  session[:deck] = cards.product(suits).shuffle!
   session[:player_cards] = []
-  session[:player_cards] << session[:deck].pop 
+  session[:dealer_cards] = []
+  session[:dealer_cards] << session[:deck].pop
+  session[:player_cards] << session[:deck].pop
+  session[:dealer_cards] << session[:deck].pop
+  session[:player_cards] << session[:deck].pop
   erb :game
 end

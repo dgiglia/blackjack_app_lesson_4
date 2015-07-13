@@ -1,8 +1,16 @@
-<h4>Hi <%= session[:player_name] %>!</h4>
+<h3>Chip's Blackjack Table</h3>
+<h5>Welcome <%= session[:player_name] %>! I'm sure it will be a crushing good time... for you that is.</h5>
 
 Your cards are:
 <ul>
 <% session[:player_cards].each do |card| %>
-  <li> <%= card.to_s %></li>
+  <li> <%= card[0] + ' of ' + card[1] %></li>
+<% end %>
+</ul>
+
+Chip's cards are:
+<ul>
+  <% session[:dealer_cards].each do |card| %>
+  <li> <%= card[0] + ' of ' + card[1] %></li>
 <% end %>
 </ul>
