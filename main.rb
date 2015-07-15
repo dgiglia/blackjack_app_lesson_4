@@ -7,8 +7,6 @@ configure :development do
   set :port, 3000 
 end
 
-set :sessions, true
-
 use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',
                            :secret => 'say_what_now' 
@@ -152,7 +150,7 @@ get '/game/compare' do
   player_total = calculate_total(session[:player_cards])
   if (player_total == BLACKJACK_AMOUNT) && (player_total > dealer_total) && (session[:player_cards].count == 2)
     winner("BLACKJACK! How did you do that?")
-  if (player_total == BLACKJACK_AMOUNT) && (player_total == dealer_total) 
+  elsif (player_total == BLACKJACK_AMOUNT) && (player_total == dealer_total) 
     loser("Our totals were both #{player_total}, but I had BLACKJACK, naturally.")
   elsif player_total < dealer_total
     loser("Your total was #{player_total}. Mine was #{dealer_total}. Did you really think you could beat me?")
