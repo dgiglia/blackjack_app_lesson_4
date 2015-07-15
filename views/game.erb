@@ -1,16 +1,53 @@
-<h3>Chip's Blackjack Table</h3>
-<h5>Welcome <%= session[:player_name] %>! I'm sure it will be a crushing good time... for you that is.</h5>
-
-Your cards are:
-<ul>
-<% session[:player_cards].each do |card| %>
-  <li> <%= card[0] + ' of ' + card[1] %></li>
+<% if @play_again %>
+  <p>Would you like to play again?  
+    <a href='/game' class='btn btn-success'>Yes</a>  
+    <a href='/game_over' class='btn btn-danger'>No</a>
+  </p>
 <% end %>
-</ul>
+<br/>
+<h3>Chip and <%= session[:player_name] %>'s Blackjack Table</h3>
+<h4>I'm sure it will be a crushing good time... for you that is.</h4>
 
-Chip's cards are:
-<ul>
-  <% session[:dealer_cards].each do |card| %>
-  <li> <%= card[0] + ' of ' + card[1] %></li>
-<% end %>
-</ul>
+<div class="well">
+  <h4><%= session[:player_name] %>'s cards</h4>
+  <p>You have a total of <%= calculate_total(session[:player_cards]) %>.</p>
+  <% if @show_hit_stay %>
+    <p>What would you like to do?</p>
+    <form id='hit_form' action='/game/player/hit' method='post'>
+      <input type='submit' class='btn btn-success' value='Hit'/>
+    </form>
+
+    <form id='stay_form' action='/game/player/stay' method='post'>
+      <input type='submit' class='btn btn-warning' value='Stay'/>
+    </form>
+  <% end %>
+  <br/>
+  <br/>
+  <% session[:player_cards].each do |card| %>
+    <%= display_card(card) %>
+  <% end %>
+</div>
+
+<br/>
+
+<div class="well">
+  <h4>Chip's Cards</h4>
+  <% if @play_again || @show_dealer_hit %>
+    <p>I have a total of <%= calculate_total(session[:dealer_cards]) %>.</p>
+  <% end %>
+  <% if @show_dealer_hit %>
+    <p>I will hit.</p>
+    <form id='dealer_hit_form' action='/game/dealer/hit' method='post'>
+      <input type='submit' class='btn btn-primary' value='Click to see my next card.'/>
+    </form>
+  <% end %>
+  <br/>
+  <% session[:dealer_cards].each_with_index do |card, index| %>
+    <% if session[:turn] != "Chip" && index == 0 %>
+      <img class='card' src='/images/cards/cover.jpg'/>
+    <% else %>
+      <%= display_card(card) %>
+    <% end %>
+  <% end %>
+</div>
+
