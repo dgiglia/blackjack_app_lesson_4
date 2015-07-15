@@ -157,7 +157,7 @@ get '/game/compare' do
   elsif player_total > dealer_total
     winner("Your total was #{player_total}. Mine was #{dealer_total}. This can't be! We must be in the wrong tube.") 
   elsif player_total == dealer_total
-    tie("Our totals were both #{player_total}. I've been watching too many cat videos. Hit me right in the feels. Couldn't bear to make you sad, lil guy.")
+    tie("Our totals were both #{player_total}. I've been watching too many cat videos. Hit me right in the feels. Couldn't bear to make you sad, human.")
   end
   erb :game
 end
