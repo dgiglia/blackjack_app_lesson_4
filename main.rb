@@ -152,6 +152,8 @@ get '/game/compare' do
   player_total = calculate_total(session[:player_cards])
   if (player_total == BLACKJACK_AMOUNT) && (player_total > dealer_total) && (session[:player_cards].count == 2)
     winner("BLACKJACK! How did you do that?")
+  if (player_total == BLACKJACK_AMOUNT) && (player_total == dealer_total) 
+    loser("Our totals were both #{player_total}, but I had BLACKJACK, naturally.")
   elsif player_total < dealer_total
     loser("Your total was #{player_total}. Mine was #{dealer_total}. Did you really think you could beat me?")
   elsif player_total > dealer_total
