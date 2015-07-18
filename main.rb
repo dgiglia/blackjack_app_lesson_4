@@ -13,6 +13,7 @@ use Rack::Session::Cookie, :key => 'rack.session',
 
 BLACKJACK_AMOUNT = 21
 DEALER_HIT_MAX = 17
+INITIAL_POCKET = 500
 
 helpers do
   def calculate_total(cards)
@@ -38,20 +39,26 @@ helpers do
   
   def winner(msg)
     @show_hit_stay = false
-    @play_again = true
-    @success = "Curse my motherboard, you won, #{session[:player_name]}! #{msg}"
+    if session[:pocket] > 0
+      @play_again = true
+    end
+    @success = "Curse my motherboard, you won, #{session[:player_name]}! #{msg} Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
   end
 
   def loser(msg)
     @show_hit_stay = false
-    @play_again = true
-    @error = "What have we here? Looks like you lost! #{msg}"
+    if session[:pocket] > 0
+      @play_again = true
+    end
+    @error = "What have we here? Looks like you lost! #{msg} Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
   end
 
   def tie(msg)
     @show_hit_stay = false
-    @play_again = true
-    @info = "Push! It's a tie. #{msg}"
+    if session[:pocket] > 0
+      @play_again = true
+    end
+    @info = "Push! It's a tie. #{msg} Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
   end
 end
 
@@ -71,6 +78,7 @@ get '/' do
 end
   
 get '/set_name' do
+  session[:pocket] = INITIAL_POCKET
   erb :set_name
 end
 
@@ -80,6 +88,27 @@ post '/set_name' do
     halt erb(:set_name)
   end
   session[:player_name] = params[:player_name]
+  redirect '/set_bet'
+end
+
+get '/set_bet' do
+  session[:bet] = nil
+  erb :set_bet
+end
+
+post '/set_bet' do
+  if params[:bet].empty? || params[:bet].nil? 
+    @error = "Ya gotta bet something. What's the fun of beating you if I can't take your money?"
+    halt erb(:set_bet)
+  elsif params[:bet].to_i <= 0 
+    @error = "Ya gotta bet something. What's the fun of beating you if I can't take your money?"
+    halt erb(:set_bet)
+  elsif params[:bet].to_i > session[:pocket]
+    @error = "Um, yeah, you don't have that kind of money. Let's try something within your budget pal. You've got $#{session[:pocket]}."
+    halt erb(:set_bet)
+  end
+  session[:bet] = params[:bet].to_i
+  session[:pocket] -= session[:bet]
   redirect '/game'
 end
 
@@ -128,6 +157,7 @@ get '/game/dealer' do
   dealer_total = calculate_total(session[:dealer_cards])
   if dealer_total > BLACKJACK_AMOUNT
     winner("Your total was #{player_total}. Mine was #{dealer_total}.")
+    session[:pocket] += session[:bet] * 2
   elsif dealer_total == BLACKJACK_AMOUNT
     loser("I won with #{BLACKJACK_AMOUNT}. Told ya I'd beat you!")
   elsif dealer_total >= DEALER_HIT_MAX
@@ -150,14 +180,17 @@ get '/game/compare' do
   player_total = calculate_total(session[:player_cards])
   if (player_total == BLACKJACK_AMOUNT) && (player_total > dealer_total) && (session[:player_cards].count == 2)
     winner("BLACKJACK! How did you do that?")
+    session[:pocket] += session[:bet] * 2.5
   elsif (player_total == BLACKJACK_AMOUNT) && (player_total == dealer_total) 
     loser("Our totals were both #{player_total}, but I had BLACKJACK, naturally.")
   elsif player_total < dealer_total
     loser("Your total was #{player_total}. Mine was #{dealer_total}. Did you really think you could beat me?")
   elsif player_total > dealer_total
     winner("Your total was #{player_total}. Mine was #{dealer_total}. This can't be! We must be in the wrong tube.") 
+    session[:pocket] += session[:bet] * 2
   elsif player_total == dealer_total
     tie("Our totals were both #{player_total}. I've been watching too many cat videos. Hit me right in the feels. Couldn't bear to make you sad, human.")
+    session[:pocket] += session[:bet]
   end
   erb :game
 end

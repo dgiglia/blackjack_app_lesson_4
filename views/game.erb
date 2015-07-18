@@ -1,6 +1,6 @@
 <% if @play_again %>
   <p>Would you like to play again?  
-    <a href='/game' class='btn btn-success'>Yes</a>  
+    <a href='/set_bet' class='btn btn-success'>Yes</a>  
     <a href='/game_over' class='btn btn-danger'>No</a>
   </p>
 <% end %>
@@ -10,7 +10,8 @@
 
 <div class="well">
   <h4><%= session[:player_name] %>'s cards</h4>
-  <p>You have a total of <%= calculate_total(session[:player_cards]) %>.</p>
+  <p>Your cards total <%= calculate_total(session[:player_cards]) %>.</p>
+  <p>You bet $<%= session[:bet] %>. You have $<%= session[:pocket] %> left in your pocket.</p>
   <% if @show_hit_stay %>
     <p>What would you like to do?</p>
     <form id='hit_form' action='/game/player/hit' method='post'>
