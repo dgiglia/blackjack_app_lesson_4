@@ -42,7 +42,7 @@ helpers do
     if session[:pocket] > 0
       @play_again = true
     end
-    @success = "Curse my motherboard, you won, #{session[:player_name]}! #{msg} Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
+    @success = "Curse my motherboard, you won, #{session[:player_name]}! #{msg}"
   end
 
   def loser(msg)
@@ -50,7 +50,7 @@ helpers do
     if session[:pocket] > 0
       @play_again = true
     end
-    @error = "What have we here? Looks like you lost! #{msg} Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
+    @error = "What have we here? Looks like you lost! #{msg}"
   end
 
   def tie(msg)
@@ -58,7 +58,7 @@ helpers do
     if session[:pocket] > 0
       @play_again = true
     end
-    @info = "Push! It's a tie. #{msg} Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
+    @info = "Push! It's a tie. #{msg}"
   end
 end
 
@@ -136,12 +136,12 @@ post '/game/player/hit' do
   session[:player_cards] << session[:deck].pop
   player_total = calculate_total(session[:player_cards])
   if player_total > BLACKJACK_AMOUNT
-    loser("Your total is #{player_total}. BUST!")
+    loser("Your total is #{player_total}. BUST! Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.")
   elsif player_total == BLACKJACK_AMOUNT
     @info = "You hit #{BLACKJACK_AMOUNT}! Let's check my cards."
     redirect '/game/compare'
   end
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/player/stay' do
@@ -156,16 +156,16 @@ get '/game/dealer' do
   player_total = calculate_total(session[:player_cards])
   dealer_total = calculate_total(session[:dealer_cards])
   if dealer_total > BLACKJACK_AMOUNT
-    winner("Your total was #{player_total}. Mine was #{dealer_total}.")
     session[:pocket] += session[:bet] * 2
+    winner("Your total was #{player_total}. Mine was #{dealer_total}. Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.")
   elsif dealer_total == BLACKJACK_AMOUNT
-    loser("I won with #{BLACKJACK_AMOUNT}. Told ya I'd beat you!")
+    loser("I won with #{BLACKJACK_AMOUNT}. Told ya I'd beat you! Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.")
   elsif dealer_total >= DEALER_HIT_MAX
     redirect '/game/compare'
   elsif dealer_total < DEALER_HIT_MAX
     @show_dealer_hit = true
   end
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/dealer/hit' do
@@ -179,20 +179,20 @@ get '/game/compare' do
   dealer_total = calculate_total(session[:dealer_cards])
   player_total = calculate_total(session[:player_cards])
   if (player_total == BLACKJACK_AMOUNT) && (player_total > dealer_total) && (session[:player_cards].count == 2)
-    winner("BLACKJACK! How did you do that?")
     session[:pocket] += session[:bet] * 2.5
+    winner("BLACKJACK! How did you do that? Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.")
   elsif (player_total == BLACKJACK_AMOUNT) && (player_total == dealer_total) 
-    loser("Our totals were both #{player_total}, but I had BLACKJACK, naturally.")
+    loser("Our totals were both #{player_total}, but I had BLACKJACK, naturally. Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.")
   elsif player_total < dealer_total
-    loser("Your total was #{player_total}. Mine was #{dealer_total}. Did you really think you could beat me?")
+    loser("Your total was #{player_total}. Mine was #{dealer_total}. Did you really think you could beat me? Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.")
   elsif player_total > dealer_total
-    winner("Your total was #{player_total}. Mine was #{dealer_total}. This can't be! We must be in the wrong tube.") 
     session[:pocket] += session[:bet] * 2
+    winner("Your total was #{player_total}. Mine was #{dealer_total}. This can't be! We must be in the wrong tube. Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.") 
   elsif player_total == dealer_total
-    tie("Our totals were both #{player_total}. I've been watching too many cat videos. Hit me right in the feels. Couldn't bear to make you sad, human.")
     session[:pocket] += session[:bet]
+    tie("Our totals were both #{player_total}. I've been watching too many cat videos. Hit me right in the feels. Couldn't bear to make you sad, human. Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket.")
   end
-  erb :game
+  erb :game, layout: false
 end
 
 get '/game_over' do

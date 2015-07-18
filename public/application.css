@@ -18,3 +18,11 @@ img.card{
   border-radius: 2px;
   background-color: white;
 }
+
+.well{
+  margin-bottom: 50px;
+}
+
+.container{
+  margin-top: 10px;
+}
