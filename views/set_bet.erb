@@ -1,12 +1,19 @@
-<h4>Um, where's your money?</h4>
+<h3>Um, where's your money?</h3>
 <p>What I mean by that is... are you broke? 
-<br/> I mean... I want to take all your money. 
-<br/> I mean... just... Alright, you've got $<%= session[:pocket] %> in your pocket. 
-<br/><em>Now we can play.</em></p>
+<br/> 
+I mean... I want to take all your money. 
+<br/> 
+I mean... just... </p>
+<h4>Alright, so you've got <strong>$<%= session[:pocket] %></strong> in your pocket.</h4>
+<p><em>Let's see what we can do about that.</em></p>
 
 <form action='/set_bet' method='post'>
   What do ya wanna bet, <%= session[:player_name] %>? 
-  <input type='text' name='bet'/>
+  <br/>
+  <div class="input-prepend">
+    <span class="add-on">$</span>
+    <input type='text' name='bet'/>
+  </div>
   <br/>
   <input type='submit' class='btn'/>
 </form>
