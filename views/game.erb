@@ -1,4 +1,7 @@
 <div id='game'>
+  <%if @warning %>
+    <div class="alert alert-error"><%=@warning%></div>
+  <% end %>
   <h2>Chip and <%= session[:player_name] %>'s Blackjack Table</h2>
   <h4>I'm sure it will be a crushing good time... for you that is.</h4>
 
@@ -23,28 +26,36 @@
       <br/>
       
       <% unless @play_again %>
+        <br/>
         <p><em>You put $<%= session[:bet] %> on the table. You have $<%= session[:pocket] %> left in your pocket.</em></p>
       <% end %>
       
-        <%if @loser %>
-          <div class="alert alert-error"><%=@loser%></div>
-        <% end %>    
-        <%if @winner %>
-          <div class="alert alert-success"><%=@winner%></div>
-        <% end %>
-        <%if @tie %>
-          <div class="alert alert-info"><%=@tie%></div>
-        <% end %>
-        <%if @betinfo %>
-          <div class="alert alert-info"><%=@betinfo%></div>
-        <% end %>
-        <%if @info %>
-          <div class="alert alert-info"><%=@info%></div>
-        <% end %>
+      <%if @loser %>
+        <div class="alert alert-error"><%=@loser%></div>
+      <% end %>    
+      <%if @winner %>
+        <div class="alert alert-success"><%=@winner%></div>
+      <% end %>
+      <%if @tie %>
+        <div class="alert alert-info"><%=@tie%></div>
+      <% end %>
+      <%if @betinfo %>
+        <div class="alert alert-info"><%=@betinfo%></div>
+      <% end %>
+      <%if @info %>
+        <div class="alert alert-info"><%=@info%></div>
+      <% end %>
       
       <% if @play_again %>
         <p>Would you like to play again?  
-          <a href='/set_bet' class='btn btn-success'>Yes</a>  
+          <br/>
+          <br/>
+          <a href='/set_bet' class='btn btn-success'>Yes, with new bet.</a> 
+          <br/>
+          <% if session[:bet] <= session[:pocket] %>
+            <a href='/game' class='btn btn-success'>Yes, with same bet.</a> 
+          <br/>
+          <% end %>
           <a href='/game_over' class='btn btn-danger'>No</a>
         </p>
       <% end %>

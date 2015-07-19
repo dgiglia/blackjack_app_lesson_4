@@ -1,11 +1,11 @@
 form#hit_form{
   float: left;
-  margin: 0 10px 10px 0;
+  margin: 10px 10px 10px 0;
 }
 
 form#stay_form{
   float: left;
-  margin: 0 10px 10px 0;
+  margin: 10px 10px 10px 0;
 }
 
 img.card{
@@ -26,9 +26,9 @@ img.card{
   margin-top: 10px;
 }
 
-/* .alert{
-  margin-left: 0;
-} */
+.btn{
+  margin-bottom: 10px;
+}
 
 div#alerts{
   margin: 0 0 10 0;

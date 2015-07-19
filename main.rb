@@ -49,6 +49,8 @@ helpers do
     @show_hit_stay = false
     if session[:pocket] > 0
       @play_again = true
+    else
+      @warning = "You're broke, #{session[:player_name]}. Looks like I can't squeeze any more outta you."
     end
     @winner = "Curse my motherboard, you won, #{session[:player_name]}! #{msg}"
   end
@@ -57,6 +59,8 @@ helpers do
     @show_hit_stay = false
     if session[:pocket] > 0
       @play_again = true
+    else
+      @warning = "You're broke, #{session[:player_name]}. Looks like I can't squeeze any more outta you."
     end
     @loser = "What have we here? Looks like you lost! #{msg}"
   end
@@ -65,12 +69,30 @@ helpers do
     @show_hit_stay = false
     if session[:pocket] > 0
       @play_again = true
+    else
+      @warning = "You're broke, #{session[:player_name]}. Looks like I can't squeeze any more outta you."
     end
     @tie = "Push! It's a tie. #{msg}"
   end
 
   def show_bet_pocket
     @betinfo = "Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
+  end
+
+  def player_blackjack?
+    player_total == BLACKJACK_AMOUNT
+  end
+
+  def player_bust?
+    player_total > BLACKJACK_AMOUNT
+  end
+
+  def dealer_blackjack?
+    dealer_total == BLACKJACK_AMOUNT
+  end
+
+  def dealer_bust?
+    dealer_total > BLACKJACK_AMOUNT
   end
 end
 
@@ -116,12 +138,12 @@ post '/set_bet' do
     @warning = "Um, yeah, you don't have that kind of money. Let's try something within your budget pal. You've got $#{session[:pocket]}."
     halt erb(:set_bet)
   end
-  session[:bet] = params[:bet].to_i
-  session[:pocket] -= session[:bet]
+  session[:bet] = params[:bet].to_i  
   redirect '/game'
 end
 
 get '/game' do
+  session[:pocket] -= session[:bet]
   session[:turn] = session[:player_name]
   suits = ['Clubs', 'Hearts', 'Diamonds', 'Spades']
   cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
@@ -132,7 +154,7 @@ get '/game' do
     session[:dealer_cards] << session[:deck].pop
     session[:player_cards] << session[:deck].pop
   end
-  if player_total == BLACKJACK_AMOUNT
+  if player_blackjack?
     @show_hit_stay = false
     redirect '/game/compare'
   end
@@ -141,10 +163,12 @@ end
 
 post '/game/player/hit' do
   session[:player_cards] << session[:deck].pop
-  if player_total > BLACKJACK_AMOUNT
+  if player_bust?
     loser("Your total is #{player_total}. BUST!")
     show_bet_pocket
-  elsif player_total == BLACKJACK_AMOUNT
+  end
+  if player_blackjack?
+    @show_hit_stay = false
     redirect '/game/compare'
   end
   erb :game, layout: false
@@ -159,14 +183,16 @@ end
 get '/game/dealer' do
   session[:turn] = "Chip"
   @show_hit_stay = false
-  if dealer_total > BLACKJACK_AMOUNT
+  if dealer_bust?
     session[:pocket] += session[:bet] * 2
     winner("Your total was #{player_total}. I busted with #{dealer_total}. Boo hoo.")
     show_bet_pocket
-  elsif dealer_total == BLACKJACK_AMOUNT
+  end
+  if dealer_blackjack?
     loser("I won with #{BLACKJACK_AMOUNT}. Told ya I'd beat you!")
     show_bet_pocket
-  elsif dealer_total >= DEALER_HIT_MAX
+  end
+  if dealer_total >= DEALER_HIT_MAX
     redirect '/game/compare'
   elsif dealer_total < DEALER_HIT_MAX
     @show_dealer_hit = true
