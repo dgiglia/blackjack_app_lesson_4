@@ -20,6 +20,9 @@
     </div>
 
   <div class="container">
+    <%if @warning %>
+      <div class="alert alert-error"><%=@warning%></div>
+    <% end %>
     <%= yield %>
   </div>
   </body>

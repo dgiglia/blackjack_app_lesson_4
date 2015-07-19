@@ -50,7 +50,7 @@ helpers do
     if session[:pocket] > 0
       @play_again = true
     end
-    @success = "Curse my motherboard, you won, #{session[:player_name]}! #{msg}"
+    @winner = "Curse my motherboard, you won, #{session[:player_name]}! #{msg}"
   end
 
   def loser(msg)
@@ -58,7 +58,7 @@ helpers do
     if session[:pocket] > 0
       @play_again = true
     end
-    @error = "What have we here? Looks like you lost! #{msg}"
+    @loser = "What have we here? Looks like you lost! #{msg}"
   end
 
   def tie(msg)
@@ -66,11 +66,11 @@ helpers do
     if session[:pocket] > 0
       @play_again = true
     end
-    @info = "Push! It's a tie. #{msg}"
+    @tie = "Push! It's a tie. #{msg}"
   end
 
   def show_bet_pocket
-    @info = "Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
+    @betinfo = "Your bet was $#{session[:bet]}. You now have $#{session[:pocket]} in your pocket."
   end
 end
 
@@ -96,7 +96,7 @@ end
 
 post '/set_name' do
   if params[:player_name].empty?
-    @error = "Name is required. I don't play with strangers."
+    @warning = "Name is required. I don't play with strangers."
     halt erb(:set_name)
   end
   session[:player_name] = params[:player_name]
@@ -109,14 +109,11 @@ get '/set_bet' do
 end
 
 post '/set_bet' do
-  if params[:bet].empty? || params[:bet].nil? 
-    @error = "Ya gotta bet something. What's the fun of beating you if I can't take your money?"
-    halt erb(:set_bet)
-  elsif params[:bet].to_i <= 0 
-    @error = "Ya gotta bet something. What's the fun of beating you if I can't take your money?"
+  if params[:bet].to_i <= 0 
+    @warning = "Ya gotta bet something. What's the fun of beating you if I can't take your money?"
     halt erb(:set_bet)
   elsif params[:bet].to_i > session[:pocket]
-    @error = "Um, yeah, you don't have that kind of money. Let's try something within your budget pal. You've got $#{session[:pocket]}."
+    @warning = "Um, yeah, you don't have that kind of money. Let's try something within your budget pal. You've got $#{session[:pocket]}."
     halt erb(:set_bet)
   end
   session[:bet] = params[:bet].to_i
@@ -131,10 +128,10 @@ get '/game' do
   session[:deck] = cards.product(suits).shuffle!
   session[:player_cards] = []
   session[:dealer_cards] = []
-  session[:dealer_cards] << session[:deck].pop
-  session[:player_cards] << session[:deck].pop
-  session[:dealer_cards] << session[:deck].pop
-  session[:player_cards] << session[:deck].pop
+  2.times do
+    session[:dealer_cards] << session[:deck].pop
+    session[:player_cards] << session[:deck].pop
+  end
   if player_total == BLACKJACK_AMOUNT
     @show_hit_stay = false
     redirect '/game/compare'
@@ -164,7 +161,7 @@ get '/game/dealer' do
   @show_hit_stay = false
   if dealer_total > BLACKJACK_AMOUNT
     session[:pocket] += session[:bet] * 2
-    winner("Your total was #{player_total}. Mine was #{dealer_total}.")
+    winner("Your total was #{player_total}. I busted with #{dealer_total}. Boo hoo.")
     show_bet_pocket
   elsif dealer_total == BLACKJACK_AMOUNT
     loser("I won with #{BLACKJACK_AMOUNT}. Told ya I'd beat you!")

@@ -26,11 +26,17 @@
         <p><em>You put $<%= session[:bet] %> on the table. You have $<%= session[:pocket] %> left in your pocket.</em></p>
       <% end %>
       
-         <%if @error %>
-          <div class="alert alert-error"><%=@error%></div>
+        <%if @loser %>
+          <div class="alert alert-error"><%=@loser%></div>
         <% end %>    
-        <%if @success %>
-          <div class="alert alert-success"><%=@success%></div>
+        <%if @winner %>
+          <div class="alert alert-success"><%=@winner%></div>
+        <% end %>
+        <%if @tie %>
+          <div class="alert alert-info"><%=@tie%></div>
+        <% end %>
+        <%if @betinfo %>
+          <div class="alert alert-info"><%=@betinfo%></div>
         <% end %>
         <%if @info %>
           <div class="alert alert-info"><%=@info%></div>
