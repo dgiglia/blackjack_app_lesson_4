@@ -25,3 +25,11 @@ img.card{
 .container{
   margin-top: 10px;
 }
+
+/* .alert{
+  margin-left: 0;
+} */
+
+div#alerts{
+  margin: 0 0 10 0;
+}
