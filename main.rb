@@ -166,8 +166,7 @@ post '/game/player/hit' do
   if player_bust?
     loser("Your total is #{player_total}. BUST!")
     show_bet_pocket
-  end
-  if player_blackjack?
+  elsif player_blackjack?
     @show_hit_stay = false
     redirect '/game/compare'
   end
@@ -187,12 +186,10 @@ get '/game/dealer' do
     session[:pocket] += session[:bet] * 2
     winner("Your total was #{player_total}. I busted with #{dealer_total}. Boo hoo.")
     show_bet_pocket
-  end
-  if dealer_blackjack?
+  elsif dealer_blackjack?
     loser("I won with #{BLACKJACK_AMOUNT}. Told ya I'd beat you!")
     show_bet_pocket
-  end
-  if dealer_total >= DEALER_HIT_MAX
+  elsif dealer_total >= DEALER_HIT_MAX
     redirect '/game/compare'
   elsif dealer_total < DEALER_HIT_MAX
     @show_dealer_hit = true
